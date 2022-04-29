@@ -1,0 +1,35 @@
+// Need uno-choices > 1.2
+def hello = '''
+pipeline {
+  agent any
+  stages {
+    stage('列出') {
+      steps {
+        script {
+          params.app.each { println(it) }
+        }
+      }
+    }
+  }
+}
+'''
+def apps =  ['a','b','c']
+
+pipelineJob('example') {
+  definition {
+    cps {
+      script(hello)
+      sandbox()
+    }
+    logRotator(-1, 10)
+    parameters {
+      activeChoiceParam('app') {
+        description('从以下列表中选择一个或者多个要发布的模块.')
+        choiceType('CHECKBOX')
+        groovyScript {
+          script('return apps.sort()')
+        }
+      }
+    }
+  }
+}
